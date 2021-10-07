@@ -33,6 +33,7 @@
 
 #pragma once
 
+#include "emu.h"
 #include "ymfm.h"
 #include "ymfm_fm.h"
 
@@ -221,7 +222,10 @@ public:
 	// per-channel registers
 	uint32_t ch_volume(uint32_t choffs) const        { return byte(0x00, 0, 8, choffs); }
 	uint32_t ch_output_any(uint32_t choffs) const    { return byte(0x20, 7, 1, choffs) | byte(0x30, 0, 1, choffs); }
-	uint32_t ch_output_0(uint32_t choffs) const      { return byte(0x30, 0, 1, choffs); }
+	//mamidimemo
+	//uint32_t ch_output_0(uint32_t choffs) const      { return byte(0x30, 0, 1, choffs); }
+	//uint32_t ch_output_1(uint32_t choffs) const      { return byte(0x20, 7, 1, choffs) | byte(0x30, 0, 1, choffs); }
+	uint32_t ch_output_0(uint32_t choffs) const      { return byte(0x20, 6, 1, choffs) | byte(0x30, 0, 1, choffs); }
 	uint32_t ch_output_1(uint32_t choffs) const      { return byte(0x20, 7, 1, choffs) | byte(0x30, 0, 1, choffs); }
 	uint32_t ch_output_2(uint32_t choffs) const      { return 0; }
 	uint32_t ch_output_3(uint32_t choffs) const      { return 0; }
@@ -231,16 +235,22 @@ public:
 	uint32_t ch_block_freq(uint32_t choffs) const    { return word(0x28, 0, 7, 0x30, 2, 6, choffs); }
 	uint32_t ch_lfo_pm_sens(uint32_t choffs) const   { return byte(0x38, 4, 3, choffs); }
 	uint32_t ch_lfo_am_sens(uint32_t choffs) const   { return byte(0x38, 0, 2, choffs); }
-	uint32_t ch_lfo2_pm_sens(uint32_t choffs) const  { return byte(0x180, 4, 3, choffs); } // fake
-	uint32_t ch_lfo2_am_sens(uint32_t choffs) const  { return byte(0x180, 0, 2, choffs); } // fake
+	//mamidimemo
+	//uint32_t ch_lfo2_pm_sens(uint32_t choffs) const  { return byte(0x180, 4, 3, choffs); } // fake
+	//uint32_t ch_lfo2_am_sens(uint32_t choffs) const  { return byte(0x180, 0, 2, choffs); } // fake
+	uint32_t ch_lfo2_pm_sens(uint32_t choffs) const  { return byte(0x38, 4, 3, choffs); }
+	uint32_t ch_lfo2_am_sens(uint32_t choffs) const  { return byte(0x38, 0, 2, choffs); }
 
 	// per-operator registers
 	uint32_t op_detune(uint32_t opoffs) const        { return byte(0x40, 4, 3, opoffs); }
 	uint32_t op_multiple(uint32_t opoffs) const      { return byte(0x40, 0, 4, opoffs); }
 	uint32_t op_fix_range(uint32_t opoffs) const     { return byte(0x40, 4, 3, opoffs); }
 	uint32_t op_fix_frequency(uint32_t opoffs) const { return byte(0x40, 0, 4, opoffs); }
-	uint32_t op_waveform(uint32_t opoffs) const      { return byte(0x100, 4, 3, opoffs); } // fake
-	uint32_t op_fine(uint32_t opoffs) const          { return byte(0x100, 0, 4, opoffs); } // fake
+	//mamidimemo
+	//uint32_t op_waveform(uint32_t opoffs) const      { return byte(0x100, 4, 3, opoffs); } // fake
+	//uint32_t op_fine(uint32_t opoffs) const          { return byte(0x100, 0, 4, opoffs); } // fake
+	uint32_t op_waveform(uint32_t opoffs) const      { return byte(0x40, 4, 3, opoffs); }
+	uint32_t op_fine(uint32_t opoffs) const          { return byte(0x40, 0, 4, opoffs); }
 	uint32_t op_total_level(uint32_t opoffs) const   { return byte(0x60, 0, 7, opoffs); }
 	uint32_t op_ksr(uint32_t opoffs) const           { return byte(0x80, 6, 2, opoffs); }
 	uint32_t op_fix_mode(uint32_t opoffs) const      { return byte(0x80, 5, 1, opoffs); }
@@ -249,10 +259,18 @@ public:
 	uint32_t op_decay_rate(uint32_t opoffs) const    { return byte(0xa0, 0, 5, opoffs); }
 	uint32_t op_detune2(uint32_t opoffs) const       { return byte(0xc0, 6, 2, opoffs); }
 	uint32_t op_sustain_rate(uint32_t opoffs) const  { return byte(0xc0, 0, 5, opoffs); }
-	uint32_t op_eg_shift(uint32_t opoffs) const      { return byte(0x120, 6, 2, opoffs); } // fake
-	uint32_t op_reverb_rate(uint32_t opoffs) const   { return byte(0x120, 0, 3, opoffs); } // fake
+	//mamidimemo
+	//uint32_t op_eg_shift(uint32_t opoffs) const      { return byte(0x120, 6, 2, opoffs); } // fake
+	//uint32_t op_reverb_rate(uint32_t opoffs) const   { return byte(0x120, 0, 3, opoffs); } // fake
+	uint32_t op_eg_shift(uint32_t opoffs) const      { return byte(0xc0, 6, 2, opoffs); }
+	uint32_t op_reverb_rate(uint32_t opoffs) const   { return byte(0xc0, 0, 3, opoffs); }
 	uint32_t op_sustain_level(uint32_t opoffs) const { return byte(0xe0, 4, 4, opoffs); }
 	uint32_t op_release_rate(uint32_t opoffs) const  { return byte(0xe0, 0, 4, opoffs); }
+
+	uint32_t op_pmsf(uint32_t choffs) const			 { return byte(0x30, 7, 1, choffs); }
+	uint32_t op_amsf(uint32_t choffs) const			 { return byte(0x30, 2, 1, choffs); }
+	uint32_t op_oscf(uint32_t opoffs) const			 { return byte(0x40, 7, 1, opoffs); }
+	uint32_t op_egsf(uint32_t opoffs) const			 { return byte(0xC0, 5, 1, opoffs); }
 
 protected:
 	// return a bitfield extracted from a byte
@@ -328,5 +346,31 @@ protected:
 
 }
 
+class ymfm_opz_device : public device_t, public device_sound_interface, public ymfm::ymfm_interface
+{
+public:
+	ymfm_opz_device(const machine_config& mconfig, const char* tag, device_t* owner, uint32_t clock);
+
+	void write(offs_t offset, u8 data);
+
+	void register_port_w(u8 data);
+	void data_port_w(u8 data);
+
+protected:
+	// device-level overrides
+	virtual void device_start() override;
+	virtual void device_clock_changed() override;
+	virtual void device_reset() override;
+
+	// sound stream update overrides
+	virtual void sound_stream_update(sound_stream& stream, stream_sample_t** inputs, stream_sample_t** outputs, int samples) override;
+
+private:
+	ymfm::ym2414 m_opz;
+	sound_stream* m_stream;
+	ymfm::ym2414::output_data m_output;
+};
+
+DECLARE_DEVICE_TYPE(YMFM_OPZ, ymfm_opz_device)
 
 #endif // YMFM_OPZ_H
