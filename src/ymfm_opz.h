@@ -207,12 +207,18 @@ public:
 	uint32_t enable_timer_a() const                  { return byte(0x14, 2, 1); }
 	uint32_t load_timer_b() const                    { return byte(0x14, 1, 1); }
 	uint32_t load_timer_a() const                    { return byte(0x14, 0, 1); }
-	uint32_t lfo2_pm_depth() const                   { return byte(0x188, 0, 7); } // fake
+	//mamidimemo
+	//uint32_t lfo2_pm_depth() const                   { return byte(0x188, 0, 7); } // fake
+	uint32_t lfo2_flag() const						 { return byte(0x17, 7, 1); }
+	uint32_t lfo2_pm_depth() const                   { return byte(0x17, 0, 7) * (lfo2_flag() ? 1 : 0); }
 	uint32_t lfo2_rate() const                       { return byte(0x16, 0, 8); }
-	uint32_t lfo2_am_depth() const                   { return byte(0x17, 0, 7); }
+	uint32_t lfo2_am_depth() const                   { return byte(0x17, 0, 7) * (lfo2_flag() ? 0 : 1); }
 	uint32_t lfo_rate() const                        { return byte(0x18, 0, 8); }
-	uint32_t lfo_am_depth() const                    { return byte(0x19, 0, 7); }
-	uint32_t lfo_pm_depth() const                    { return byte(0x189, 0, 7); } // fake
+	uint32_t lfo_am_depth() const                    { return byte(0x19, 0, 7) * (lfo_flag() ? 0 : 1); }
+	//mamidimemo
+	//uint32_t lfo_pm_depth() const                    { return byte(0x189, 0, 7); } // fake
+	uint32_t lfo_flag() const						 { return byte(0x19, 7, 1); }
+	uint32_t lfo_pm_depth() const                    { return byte(0x19, 0, 7) * (lfo_flag() ? 1 : 0); }
 	uint32_t output_bits() const                     { return byte(0x1b, 6, 2); }
 	uint32_t lfo2_sync() const                       { return byte(0x1b, 5, 1); }
 	uint32_t lfo_sync() const                        { return byte(0x1b, 4, 1); }
