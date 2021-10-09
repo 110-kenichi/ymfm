@@ -2528,4 +2528,5 @@ void ymfm_opn2_device::sound_stream_update(sound_stream& stream, stream_sample_t
 void ymfm_opn2_device::write(offs_t offset, u8 data)
 {
 	m_opn2.write(offset, data);
+	m_stream->update();
 }
