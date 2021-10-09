@@ -2471,3 +2471,61 @@ void ymf276::generate(output_data *output, uint32_t numsamples)
 }
 
 }
+
+
+// device type definition
+DEFINE_DEVICE_TYPE(YMFM_OPN2, ymfm_opn2_device, "ymfm_opn2", "YMFM_OPN2")
+
+
+ymfm_opn2_device::ymfm_opn2_device(const machine_config& mconfig, const char* tag, device_t* owner, uint32_t clock)
+	: device_t(mconfig, YMFM_OPN2, tag, owner, clock)
+	, device_sound_interface(mconfig, *this)
+	, m_opn2(*this)
+{
+}
+
+//-------------------------------------------------
+//  device_start - device-specific startup
+//-------------------------------------------------
+
+void ymfm_opn2_device::device_start()
+{
+	m_stream = machine().sound().stream_alloc(*this, 0, 2, m_opn2.sample_rate(clock()));
+}
+
+//-------------------------------------------------
+//  device_clock_changed
+//-------------------------------------------------
+void ymfm_opn2_device::device_clock_changed()
+{
+	m_stream->set_sample_rate(m_opn2.sample_rate(clock()));
+}
+
+//-------------------------------------------------
+//  device_reset - device-specific reset
+//-------------------------------------------------
+
+void ymfm_opn2_device::device_reset()
+{
+	m_opn2.reset();
+}
+
+//-------------------------------------------------
+//  sound_stream_update - handle a stream update
+//-------------------------------------------------
+
+void ymfm_opn2_device::sound_stream_update(sound_stream& stream, stream_sample_t** inputs, stream_sample_t** outputs, int samples)
+{
+
+	for (int i = 0; i < samples; i++)
+	{
+		m_opn2.generate(&m_output);
+		outputs[0][i] = m_output.data[0];
+		outputs[1][i] = m_output.data[1];
+	}
+}
+
+void ymfm_opn2_device::write(offs_t offset, u8 data)
+{
+	m_opn2.write(offset, data);
+}

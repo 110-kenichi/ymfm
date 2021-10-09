@@ -868,20 +868,5 @@ void ymfm_opz_device::sound_stream_update(sound_stream& stream, stream_sample_t*
 
 void ymfm_opz_device::write(offs_t offset, u8 data)
 {
-	//m_opz.write(offset, data);
-	if (offset)
-		data_port_w(data);
-	else
-		register_port_w(data);
-}
-
-void ymfm_opz_device::register_port_w(u8 data)
-{
-	m_opz.write_address(data);
-}
-
-void ymfm_opz_device::data_port_w(u8 data)
-{
-	m_stream->update();
-	m_opz.write_data(data);
+	m_opz.write(offset, data);
 }

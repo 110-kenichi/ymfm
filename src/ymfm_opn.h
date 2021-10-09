@@ -33,6 +33,7 @@
 
 #pragma once
 
+#include "emu.h"
 #include "ymfm.h"
 #include "ymfm_adpcm.h"
 #include "ymfm_fm.h"
@@ -798,5 +799,28 @@ public:
 
 }
 
+class ymfm_opn2_device : public device_t, public device_sound_interface, public ymfm::ymfm_interface
+{
+public:
+	ymfm_opn2_device(const machine_config& mconfig, const char* tag, device_t* owner, uint32_t clock);
+
+	void write(offs_t offset, u8 data);
+
+protected:
+	// device-level overrides
+	virtual void device_start() override;
+	virtual void device_clock_changed() override;
+	virtual void device_reset() override;
+
+	// sound stream update overrides
+	virtual void sound_stream_update(sound_stream& stream, stream_sample_t** inputs, stream_sample_t** outputs, int samples) override;
+
+private:
+	ymfm::ym2612 m_opn2;
+	sound_stream* m_stream;
+	ymfm::ym2612::output_data m_output;
+};
+
+DECLARE_DEVICE_TYPE(YMFM_OPN2, ymfm_opn2_device)
 
 #endif // YMFM_OPN_H
