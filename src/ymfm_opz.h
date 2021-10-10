@@ -273,8 +273,8 @@ public:
 	uint32_t op_sustain_level(uint32_t opoffs) const { return byte(0xe0, 4, 4, opoffs); }
 	uint32_t op_release_rate(uint32_t opoffs) const  { return byte(0xe0, 0, 4, opoffs); }
 
-	uint32_t op_pmsf(uint32_t choffs) const			 { return byte(0x30, 7, 1, choffs); }
-	uint32_t op_amsf(uint32_t choffs) const			 { return byte(0x30, 2, 1, choffs); }
+	uint32_t op_pmsf(uint32_t choffs) const			 { return byte(0x38, 7, 1, choffs); }
+	uint32_t op_amsf(uint32_t choffs) const			 { return byte(0x38, 2, 1, choffs); }
 	uint32_t op_oscf(uint32_t opoffs) const			 { return byte(0x40, 7, 1, opoffs); }
 	uint32_t op_egsf(uint32_t opoffs) const			 { return byte(0xC0, 5, 1, opoffs); }
 
