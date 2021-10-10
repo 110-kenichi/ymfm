@@ -799,6 +799,8 @@ public:
 
 }
 
+#include <queue>
+
 class ymfm_opn2_device : public device_t, public device_sound_interface, public ymfm::ymfm_interface
 {
 public:
@@ -819,6 +821,9 @@ private:
 	ymfm::ym2612 m_opn2;
 	sound_stream* m_stream;
 	ymfm::ym2612::output_data m_output;
+
+	std::queue<offs_t> m_queue_offset;
+	std::queue<u8> m_queue_data;
 };
 
 DECLARE_DEVICE_TYPE(YMFM_OPN2, ymfm_opn2_device)

@@ -2508,6 +2508,11 @@ void ymfm_opn2_device::device_clock_changed()
 void ymfm_opn2_device::device_reset()
 {
 	m_opn2.reset();
+
+	while (!m_queue_offset.empty())
+		m_queue_offset.pop();
+	while (!m_queue_data.empty())
+		m_queue_data.pop();
 }
 
 //-------------------------------------------------
@@ -2519,6 +2524,13 @@ void ymfm_opn2_device::sound_stream_update(sound_stream& stream, stream_sample_t
 
 	for (int i = 0; i < samples; i++)
 	{
+		if (!m_queue_offset.empty())
+		{
+			m_opn2.write(m_queue_offset.front(), m_queue_data.front());
+			m_queue_offset.pop();
+			m_queue_data.pop();
+		}
+
 		m_opn2.generate(&m_output);
 		outputs[0][i] = m_output.data[0];
 		outputs[1][i] = m_output.data[1];
@@ -2527,6 +2539,6 @@ void ymfm_opn2_device::sound_stream_update(sound_stream& stream, stream_sample_t
 
 void ymfm_opn2_device::write(offs_t offset, u8 data)
 {
-	m_opn2.write(offset, data);
-	m_stream->update();
+	m_queue_offset.push(offset);
+	m_queue_data.push(data);
 }
