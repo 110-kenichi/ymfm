@@ -221,38 +221,37 @@ bool opz_registers::write(uint16_t index, uint8_t data, uint32_t &channel, uint3
 	//   0x38..0x3F -> 0x180..0x187 if bit 7 is set
 	//   0x40..0x5F -> 0x100..0x11F if bit 7 is set
 	//   0xC0..0xDF -> 0x120..0x13F if bit 5 is set
-	//if (index == 0x17 && bitfield(data, 7) != 0)
-	//	m_regdata[0x188] = data;
-	//else if (index == 0x19 && bitfield(data, 7) != 0)
-	//	m_regdata[0x189] = data;
-	//else if ((index & 0xf8) == 0x38 && bitfield(data, 7) != 0)
-	//	m_regdata[0x180 + (index & 7)] = data;
-	//else if ((index & 0xe0) == 0x40 && bitfield(data, 7) != 0)
-	//	m_regdata[0x100 + (index & 0x1f)] = data;
-	//else if ((index & 0xe0) == 0xc0 && bitfield(data, 5) != 0)
-	//	m_regdata[0x120 + (index & 0x1f)] = data;
-	//else if (index < 0x100)
+	if (index == 0x17 && bitfield(data, 7) != 0)
+		m_regdata[0x188] = data;
+	else if (index == 0x19 && bitfield(data, 7) != 0)
+		m_regdata[0x189] = data;
+	else if ((index & 0xf8) == 0x38 && bitfield(data, 7) != 0)
+		m_regdata[0x180 + (index & 7)] = data;
+	else if ((index & 0xe0) == 0x40 && bitfield(data, 7) != 0)
+		m_regdata[0x100 + (index & 0x1f)] = data;
+	else if ((index & 0xe0) == 0xc0 && bitfield(data, 5) != 0)
+		m_regdata[0x120 + (index & 0x1f)] = data;
+	else if (index < 0x100)
 		m_regdata[index] = data;
 
 	// preset writes restore some values from a preset memory; not sure
 	// how this really works but the TX81Z will overwrite the sustain level/
 	// release rate register and the envelope shift/reverb rate register to
 	// dampen sound, then write the preset number to register 8 to restore them
-	//mamidimemo
-	//if (index == 0x08)
-	//{
-	//	int chan = bitfield(data, 0, 3);
-	//	if (TEMPORARY_DEBUG_PRINTS)
-	//		printf("Loading preset %d\n", chan);
-	//	m_regdata[0xe0 + chan + 0] = m_regdata[0x140 + chan + 0];
-	//	m_regdata[0xe0 + chan + 8] = m_regdata[0x140 + chan + 8];
-	//	m_regdata[0xe0 + chan + 16] = m_regdata[0x140 + chan + 16];
-	//	m_regdata[0xe0 + chan + 24] = m_regdata[0x140 + chan + 24];
-	//	m_regdata[0x120 + chan + 0] = m_regdata[0x160 + chan + 0];
-	//	m_regdata[0x120 + chan + 8] = m_regdata[0x160 + chan + 8];
-	//	m_regdata[0x120 + chan + 16] = m_regdata[0x160 + chan + 16];
-	//	m_regdata[0x120 + chan + 24] = m_regdata[0x160 + chan + 24];
-	//}
+	if (index == 0x08)
+	{
+		int chan = bitfield(data, 0, 3);
+		if (TEMPORARY_DEBUG_PRINTS)
+			printf("Loading preset %d\n", chan);
+		m_regdata[0xe0 + chan + 0] = m_regdata[0x140 + chan + 0];
+		m_regdata[0xe0 + chan + 8] = m_regdata[0x140 + chan + 8];
+		m_regdata[0xe0 + chan + 16] = m_regdata[0x140 + chan + 16];
+		m_regdata[0xe0 + chan + 24] = m_regdata[0x140 + chan + 24];
+		m_regdata[0x120 + chan + 0] = m_regdata[0x160 + chan + 0];
+		m_regdata[0x120 + chan + 8] = m_regdata[0x160 + chan + 8];
+		m_regdata[0x120 + chan + 16] = m_regdata[0x160 + chan + 16];
+		m_regdata[0x120 + chan + 24] = m_regdata[0x160 + chan + 24];
+	}
 
 	// store the presets under some unknown condition; the pattern of writes
 	// when setting a new preset is:
@@ -268,18 +267,17 @@ bool opz_registers::write(uint16_t index, uint8_t data, uint32_t &channel, uint3
 	//
 	// For now, try using the 40-5F (alt) writes as flags that presets are
 	// being loaded until the E0-FF writes happen.
-	//mamidimemo
-	//bool is_setting_preset = (bitfield(m_regdata[0x100 + (index & 0x1f)], 7) != 0);
-	//if (is_setting_preset)
-	//{
-	//	if ((index & 0xe0) == 0xe0)
-	//	{
-	//		m_regdata[0x140 + (index & 0x1f)] = data;
-	//		m_regdata[0x100 + (index & 0x1f)] &= 0x7f;
-	//	}
-	//	else if ((index & 0xe0) == 0xc0 && bitfield(data, 5) != 0)
-	//		m_regdata[0x160 + (index & 0x1f)] = data;
-	//}
+	bool is_setting_preset = (bitfield(m_regdata[0x100 + (index & 0x1f)], 7) != 0);
+	if (is_setting_preset)
+	{
+		if ((index & 0xe0) == 0xe0)
+		{
+			m_regdata[0x140 + (index & 0x1f)] = data;
+			m_regdata[0x100 + (index & 0x1f)] &= 0x7f;
+		}
+		else if ((index & 0xe0) == 0xc0 && bitfield(data, 5) != 0)
+			m_regdata[0x160 + (index & 0x1f)] = data;
+	}
 
 	// handle writes to the key on index
 	//mamidimemo
@@ -383,7 +381,7 @@ uint32_t opz_registers::lfo_am_offset(uint32_t choffs) const
 	// shift value for AM sensitivity is [*, 0, 1, 2],
 	// mapping to values of [0, 23.9, 47.8, and 95.6dB]
 	uint32_t am_sensitivity = ch_lfo_am_sens(choffs);
-	if (am_sensitivity != 0 && op_amsf(choffs) == 0)
+	if (am_sensitivity != 0)
 		result = m_lfo_am[0] << (am_sensitivity - 1);
 
 	// QUESTION: see OPN note below for the dB range mapping; it applies
@@ -393,7 +391,7 @@ uint32_t opz_registers::lfo_am_offset(uint32_t choffs) const
 	// larger than the OPN below, putting our staring point at 2x theirs;
 	// this works out since our minimum is 2x their maximum
 	uint32_t am_sensitivity2 = ch_lfo2_am_sens(choffs);
-	if (am_sensitivity2 != 0 && op_amsf(choffs) == 1)
+	if (am_sensitivity2 != 0)
 		result += m_lfo_am[1] << (am_sensitivity2 - 1);
 
 	return result;
@@ -413,7 +411,7 @@ void opz_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata
 	// TODO: what is op_rev()?
 
 	// set up the easy stuff
-	cache.waveform = &m_waveform[op_oscf(opoffs) == 1 ? op_waveform(opoffs) : 0][0];
+	cache.waveform = &m_waveform[op_waveform(opoffs)][0];
 
 	// get frequency from the channel
 	uint32_t block_freq = cache.block_freq = ch_block_freq(choffs);
@@ -428,14 +426,14 @@ void opz_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata
 	uint32_t keycode = bitfield(block_freq, 8, 5);
 
 	// detune adjustment
-	cache.detune = detune_adjustment(op_fix_mode(opoffs) == 0 ? op_detune(opoffs) : 0, keycode);
+	cache.detune = detune_adjustment(op_detune(opoffs), keycode);
 
 	// multiple value, as an x.4 value (0 means 0.5)
 	// the "fine" control provides the fractional bits
-	cache.multiple = op_fix_mode(opoffs) == 0 ? op_multiple(opoffs) << 4 : 0;
+	cache.multiple = op_multiple(opoffs) << 4;
 	if (cache.multiple == 0)
 		cache.multiple = 0x08;
-	cache.multiple |= op_oscf(opoffs) == 1 ? op_fine(opoffs) : 0;
+	cache.multiple |= op_fine(opoffs);
 
 	// phase step, or PHASE_STEP_DYNAMIC if PM is active; this depends on
 	// block_freq, detune, and multiple, so compute it after we've done those;
@@ -461,7 +459,7 @@ void opz_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata
 	cache.eg_rate[EG_SUSTAIN] = effective_rate(op_sustain_rate(opoffs) * 2, ksrval);
 	cache.eg_rate[EG_RELEASE] = effective_rate(op_release_rate(opoffs) * 4 + 2, ksrval);
 	cache.eg_rate[EG_REVERB] = cache.eg_rate[EG_RELEASE];
-	uint32_t reverb = op_egsf(opoffs) == 1 ? op_reverb_rate(opoffs) : 0;
+	uint32_t reverb = op_reverb_rate(opoffs);
 	if (reverb != 0)
 		cache.eg_rate[EG_REVERB] = std::min<uint32_t>(effective_rate(reverb * 4 + 2, ksrval), cache.eg_rate[EG_REVERB]);
 
@@ -488,7 +486,7 @@ uint32_t opz_registers::compute_phase_step(uint32_t choffs, uint32_t opoffs, opd
 		uint32_t freq = op_fix_frequency(opoffs) << 4;
 		if (freq == 0)
 			freq = 8;
-		freq |= op_oscf(opoffs) == 1 ? op_fine(opoffs) : 0;
+		freq |= op_fine(opoffs);
 		freq <<= op_fix_range(opoffs);
 
 		// there is not enough resolution in the plain phase step to track the
@@ -509,11 +507,11 @@ uint32_t opz_registers::compute_phase_step(uint32_t choffs, uint32_t opoffs, opd
 		// start with coarse detune delta; table uses cents value from
 		// manual, converted into 1/64ths
 		static const int16_t s_detune2_delta[4] = { 0, (600*64+50)/100, (781*64+50)/100, (950*64+50)/100 };
-		int32_t delta = s_detune2_delta[op_egsf(opoffs) == 1 ? op_detune2(opoffs) : 0];
+		int32_t delta = s_detune2_delta[op_detune2(opoffs)];
 
 		// add in the PM deltas
 		uint32_t pm_sensitivity = ch_lfo_pm_sens(choffs);
-		if (pm_sensitivity != 0 && op_pmsf(choffs) == 0)
+		if (pm_sensitivity != 0)
 		{
 			// raw PM value is -127..128 which is +/- 200 cents
 			// manual gives these magnitudes in cents:
@@ -526,7 +524,7 @@ uint32_t opz_registers::compute_phase_step(uint32_t choffs, uint32_t opoffs, opd
 				delta += int8_t(lfo_raw_pm) << (pm_sensitivity - 5);
 		}
 		uint32_t pm_sensitivity2 = ch_lfo2_pm_sens(choffs);
-		if (pm_sensitivity2 != 0 && op_pmsf(choffs) == 1)
+		if (pm_sensitivity2 != 0)
 		{
 			// raw PM value is -127..128 which is +/- 200 cents
 			// manual gives these magnitudes in cents:
