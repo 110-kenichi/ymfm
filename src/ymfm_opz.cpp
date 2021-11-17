@@ -720,7 +720,7 @@ void ym2414::write_data(uint8_t data)
 			case 0x20:
 				switch (m_address & 0xf8)
 				{
-					case 0x20:	printf("R/FBL/ALG %d = %02X\n", m_address & 7, data);	break;
+					case 0x20:	printf("R/L/FBL/ALG %d = %02X\n", m_address & 7, data);	break;
 					case 0x28:	printf("KC %d = %02X\n", m_address & 7, data);	break;
 					case 0x30:	printf("KF/M %d = %02X\n", m_address & 7, data);	break;
 					case 0x38:	printf("PMS/AMS %d = %02X\n", m_address & 7, data); break;
