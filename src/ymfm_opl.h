@@ -37,6 +37,7 @@
 #include "ymfm_adpcm.h"
 #include "ymfm_fm.h"
 #include "ymfm_pcm.h"
+#include "emu.h"
 
 namespace ymfm
 {
@@ -898,5 +899,42 @@ private:
 };
 
 }
+
+#include <queue>
+
+class ymfm_opll_device : public device_t, public device_sound_interface, public ymfm::ymfm_interface
+{
+public:
+	ymfm_opll_device(const machine_config& mconfig, const char* tag, device_t* owner, uint32_t clock);
+
+	void write(offs_t offset, u8 data);
+
+	void register_port_w(u8 data);
+	void data_port_w(u8 data);
+
+protected:
+	// device-level overrides
+	virtual void device_start() override;
+	virtual void device_clock_changed() override;
+	virtual void device_reset() override;
+
+	// sound stream update overrides
+	virtual void sound_stream_update(sound_stream& stream, stream_sample_t** inputs, stream_sample_t** outputs, int samples) override;
+
+private:
+	ymfm::ym2413 m_opll;
+	sound_stream* m_stream;
+	ymfm::ym2413::output_data m_output;
+	std::queue<offs_t> m_queue_offset;
+	std::queue<u8> m_queue_data;
+
+	static uint8_t const ym2413_default_instruments[];
+	static uint8_t const ym2423_default_instruments[];
+	static uint8_t const ymf281_default_instruments[];
+	static uint8_t const ds1001_default_instruments[];
+
+};
+
+DECLARE_DEVICE_TYPE(YMFM_OPLL, ymfm_opll_device)
 
 #endif // YMFM_OPL_H
