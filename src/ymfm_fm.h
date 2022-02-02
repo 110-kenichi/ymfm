@@ -313,7 +313,7 @@ private:
 		constexpr int out2_index = 2 % RegisterType::OUTPUTS;
 		constexpr int out3_index = 3 % RegisterType::OUTPUTS;
 
-		if (RegisterType::OUTPUTS == 1 || m_regs.ch_output_0(choffs))
+		if (RegisterType::OUTPUTS >= 1 || m_regs.ch_output_0(choffs))
 			output.data[out0_index] += value;
 		if (RegisterType::OUTPUTS >= 2 && m_regs.ch_output_1(choffs))
 			output.data[out1_index] += value;
