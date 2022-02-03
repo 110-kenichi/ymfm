@@ -2268,8 +2268,8 @@ void ymfm_opll_device::sound_stream_update(sound_stream& stream, stream_sample_t
 		}
 
 		m_opll.generate(&m_output);
-		outputs[0][i] = m_output.data[0];
-		outputs[1][i] = m_output.data[1];
+		outputs[0][i] = m_output.data[0] + m_output.data[1];
+		outputs[1][i] = m_output.data[0] + m_output.data[1];
 	}
 }
 
