@@ -2491,6 +2491,8 @@ ymfm_opn2_device::ymfm_opn2_device(const machine_config& mconfig, const char* ta
 void ymfm_opn2_device::device_start()
 {
 	m_stream = machine().sound().stream_alloc(*this, 0, 2, m_opn2.sample_rate(clock()));
+
+	m_vgm_writer = new vgm_writer(machine());
 }
 
 //-------------------------------------------------
@@ -2541,4 +2543,35 @@ void ymfm_opn2_device::write(offs_t offset, u8 data)
 {
 	m_queue_offset.push(offset);
 	m_queue_data.push(data);
+
+	switch (offset & 3)
+	{
+		case 0: // address port
+			m_address = data;
+			break;
+
+		case 1: // data port
+			m_vgm_writer->vgm_write(0x00, m_address, data);
+			break;
+
+		case 2: // upper address port
+			m_address = 0x100 | data;
+			break;
+
+		case 3: // upper data port
+			m_vgm_writer->vgm_write(0x00, m_address, data);
+			break;
+	}
+}
+
+void ymfm_opn2_device::vgm_start(char* name)
+{
+	m_vgm_writer->vgm_start(name);
+
+	m_vgm_writer->vgm_open(VGMC_YM2612, clock());
+}
+
+void ymfm_opn2_device::vgm_stop(void)
+{
+	m_vgm_writer->vgm_stop();
 }

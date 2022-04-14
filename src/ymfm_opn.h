@@ -39,6 +39,8 @@
 #include "ymfm_fm.h"
 #include "ymfm_ssg.h"
 
+#include "vgmwrite.h"
+
 namespace ymfm
 {
 
@@ -231,6 +233,7 @@ public:
 	uint32_t op_release_rate(uint32_t opoffs) const  { return byte(0x80, 0, 4, opoffs); }
 	uint32_t op_ssg_eg_enable(uint32_t opoffs) const { return byte(0x90, 3, 1, opoffs); }
 	uint32_t op_ssg_eg_mode(uint32_t opoffs) const   { return byte(0x90, 0, 3, opoffs); }
+
 
 protected:
 	// return a bitfield extracted from a byte
@@ -808,6 +811,9 @@ public:
 
 	void write(offs_t offset, u8 data);
 
+	void vgm_start(char* name);
+	void vgm_stop(void);
+
 protected:
 	// device-level overrides
 	virtual void device_start() override;
@@ -824,6 +830,8 @@ private:
 
 	std::queue<offs_t> m_queue_offset;
 	std::queue<u8> m_queue_data;
+	vgm_writer* m_vgm_writer;
+	uint16_t m_address;
 };
 
 DECLARE_DEVICE_TYPE(YMFM_OPN2, ymfm_opn2_device)

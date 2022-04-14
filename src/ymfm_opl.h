@@ -38,6 +38,7 @@
 #include "ymfm_fm.h"
 #include "ymfm_pcm.h"
 #include "emu.h"
+#include "vgmwrite.h"
 
 namespace ymfm
 {
@@ -912,6 +913,9 @@ public:
 	void register_port_w(u8 data);
 	void data_port_w(u8 data);
 
+	void vgm_start(char* name);
+	void vgm_stop(void);
+
 protected:
 	// device-level overrides
 	virtual void device_start() override;
@@ -933,6 +937,8 @@ private:
 	static uint8_t const ymf281_default_instruments[];
 	static uint8_t const ds1001_default_instruments[];
 
+	vgm_writer* m_vgm_writer;
+	uint16_t m_address;
 };
 
 DECLARE_DEVICE_TYPE(YMFM_OPLL, ymfm_opll_device)

@@ -2227,6 +2227,8 @@ ymfm_opll_device::ymfm_opll_device(const machine_config& mconfig, const char* ta
 void ymfm_opll_device::device_start()
 {
 	m_stream = machine().sound().stream_alloc(*this, 0, 2, m_opll.sample_rate(clock()));
+
+	m_vgm_writer = new vgm_writer(machine());
 }
 
 //-------------------------------------------------
@@ -2297,8 +2299,31 @@ void ymfm_opll_device::write(offs_t offset, u8 data)
 	else {
 		m_queue_offset.push(offset);
 		m_queue_data.push(data);
+
+		switch (offset & 1)
+		{
+		case 0: // address port
+			m_address = data;
+			break;
+		case 1: // data port
+			m_vgm_writer->vgm_write(0x00, m_address, data);
+			break;
+		}
 	}
 }
+
+void ymfm_opll_device::vgm_start(char* name)
+{
+	m_vgm_writer->vgm_start(name);
+
+	m_vgm_writer->vgm_open(VGMC_YM2413, clock());
+}
+
+void ymfm_opll_device::vgm_stop(void)
+{
+	m_vgm_writer->vgm_stop();
+}
+
 
 uint8_t const ymfm_opll_device::ym2413_default_instruments[] =
 {
