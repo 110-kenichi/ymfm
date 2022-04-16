@@ -831,7 +831,8 @@ private:
 	std::queue<offs_t> m_queue_offset;
 	std::queue<u8> m_queue_data;
 	vgm_writer* m_vgm_writer;
-	uint16_t m_address;
+	uint16_t m_address0;
+	uint16_t m_address1;
 };
 
 DECLARE_DEVICE_TYPE(YMFM_OPN2, ymfm_opn2_device)

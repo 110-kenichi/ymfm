@@ -2547,19 +2547,19 @@ void ymfm_opn2_device::write(offs_t offset, u8 data)
 	switch (offset & 3)
 	{
 		case 0: // address port
-			m_address = data;
+			m_address0 = data;
 			break;
 
 		case 1: // data port
-			m_vgm_writer->vgm_write(0x00, m_address, data);
+			m_vgm_writer->vgm_write(0x00, m_address0, data);
 			break;
 
 		case 2: // upper address port
-			m_address = 0x100 | data;
+			m_address1 = data;
 			break;
 
 		case 3: // upper data port
-			m_vgm_writer->vgm_write(0x00, m_address, data);
+			m_vgm_writer->vgm_write(0x01, m_address1, data);
 			break;
 	}
 }
