@@ -2035,8 +2035,8 @@ namespace ymfm
 
 			// final output is multiplexed; we don't simulate that here except
 			// to average over everything
-			output->data[0] = (output->data[0] << 7) / 9;
-			output->data[1] = (output->data[1] << 7) / 9;
+		output->data[0] = (output->data[0] * 128) / 9;
+		output->data[1] = (output->data[1] * 128) / 9;
 		}
 	}
 
