@@ -33,6 +33,7 @@
 
 #pragma once
 
+#include "emu.h"
 #include "ymfm.h"
 #include "ymfm_fm.h"
 
@@ -289,5 +290,33 @@ public:
 
 }
 
+
+#include <queue>
+
+class ymfm_opq_device : public device_t, public device_sound_interface, public ymfm::ymfm_interface
+{
+public:
+	ymfm_opq_device(const machine_config& mconfig, const char* tag, device_t* owner, uint32_t clock);
+
+	void write(offs_t offset, u8 data);
+
+protected:
+	// device-level overrides
+	virtual void device_start() override;
+	virtual void device_clock_changed() override;
+	virtual void device_reset() override;
+
+	// sound stream update overrides
+	virtual void sound_stream_update(sound_stream& stream, stream_sample_t** inputs, stream_sample_t** outputs, int samples) override;
+
+private:
+	ymfm::ym3806 m_opq;
+	sound_stream* m_stream;
+	ymfm::ym3806::output_data m_output;
+	std::queue<offs_t> m_queue_offset;
+	std::queue<u8> m_queue_data;
+};
+
+DECLARE_DEVICE_TYPE(YMFM_OPQ, ymfm_opq_device)
 
 #endif // YMFM_OPQ_H

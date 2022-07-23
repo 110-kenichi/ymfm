@@ -342,9 +342,6 @@ public:
 
 	void write(offs_t offset, u8 data);
 
-	void register_port_w(u8 data);
-	void data_port_w(u8 data);
-
 protected:
 	// device-level overrides
 	virtual void device_start() override;

@@ -478,3 +478,74 @@ void ym3806::generate(output_data *output, uint32_t numsamples)
 }
 
 }
+
+
+// device type definition
+DEFINE_DEVICE_TYPE(YMFM_OPQ, ymfm_opq_device, "ymfm_opq", "YMFM_OPQ")
+
+
+ymfm_opq_device::ymfm_opq_device(const machine_config& mconfig, const char* tag, device_t* owner, uint32_t clock)
+	: device_t(mconfig, YMFM_OPQ, tag, owner, clock)
+	, device_sound_interface(mconfig, *this)
+	, m_opq(*this)
+{
+}
+
+//-------------------------------------------------
+//  device_start - device-specific startup
+//-------------------------------------------------
+
+void ymfm_opq_device::device_start()
+{
+	m_stream = machine().sound().stream_alloc(*this, 0, 2, m_opq.sample_rate(clock()));
+}
+
+//-------------------------------------------------
+//  device_clock_changed
+//-------------------------------------------------
+void ymfm_opq_device::device_clock_changed()
+{
+	m_stream->set_sample_rate(m_opq.sample_rate(clock()));
+}
+
+//-------------------------------------------------
+//  device_reset - device-specific reset
+//-------------------------------------------------
+
+void ymfm_opq_device::device_reset()
+{
+	m_opq.reset();
+
+	while (!m_queue_offset.empty())
+		m_queue_offset.pop();
+	while (!m_queue_data.empty())
+		m_queue_data.pop();
+}
+
+//-------------------------------------------------
+//  sound_stream_update - handle a stream update
+//-------------------------------------------------
+
+void ymfm_opq_device::sound_stream_update(sound_stream& stream, stream_sample_t** inputs, stream_sample_t** outputs, int samples)
+{
+
+	for (int i = 0; i < samples; i++)
+	{
+		if (!m_queue_offset.empty())
+		{
+			m_opq.write(m_queue_offset.front(), m_queue_data.front());
+			m_queue_offset.pop();
+			m_queue_data.pop();
+		}
+
+		m_opq.generate(&m_output);
+		outputs[0][i] = m_output.data[0];
+		outputs[1][i] = m_output.data[1];
+	}
+}
+
+void ymfm_opq_device::write(offs_t offset, u8 data)
+{
+	m_queue_offset.push(offset);
+	m_queue_data.push(data);
+}
