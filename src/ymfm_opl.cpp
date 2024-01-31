@@ -100,6 +100,11 @@ namespace ymfm
 				}
 			}
 		}
+
+	// OPL3/OPL4 have dynamic operators, so initialize the fourop_enable value here
+	// since operator_map() is called right away, prior to reset()
+	if (Revision > 2)
+		m_regdata[0x104 % REGISTERS] = 0;
 	}
 
 
@@ -1710,9 +1715,14 @@ namespace ymfm
 
 	uint8_t ymf278b::read_data_pcm()
 	{
-		// write to FM
+		// read from PCM
 		if (bitfield(m_address, 9) != 0)
-			return m_pcm.read(m_address & 0xff);
+		{
+			uint8_t result = m_pcm.read(m_address & 0xff);
+			if ((m_address & 0xff) == 0x02)
+				result |= 0x20;
+			return result;
+		}
 		return 0;
 	}
 
