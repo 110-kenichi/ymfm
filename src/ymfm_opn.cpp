@@ -2508,6 +2508,9 @@ void ymfm_opn2_device::device_start()
 	m_stream = machine().sound().stream_alloc(*this, 0, 2, m_opn2.sample_rate(clock()));
 
 	m_vgm_writer = new vgm_writer(machine());
+
+	m_timer = machine().scheduler().timer_alloc(timer_expired_delegate(FUNC(ymfm_opn2_device::timer_callback), this));
+	m_timer->adjust(attotime::from_hz(14000.), 0, attotime::from_hz(14000.));
 }
 
 //-------------------------------------------------
@@ -2527,9 +2530,9 @@ void ymfm_opn2_device::device_reset()
 	m_opn2.reset();
 
 	while (!m_queue_offset.empty())
-		m_queue_offset.pop();
+		m_queue_offset.pop_front();
 	while (!m_queue_data.empty())
-		m_queue_data.pop();
+		m_queue_data.pop_front();
 }
 
 //-------------------------------------------------
@@ -2544,8 +2547,8 @@ void ymfm_opn2_device::sound_stream_update(sound_stream& stream, stream_sample_t
 		if (!m_queue_offset.empty())
 		{
 			m_opn2.write(m_queue_offset.front(), m_queue_data.front());
-			m_queue_offset.pop();
-			m_queue_data.pop();
+			m_queue_offset.pop_front();
+			m_queue_data.pop_front();
 		}
 
 		m_opn2.generate(&m_output);
@@ -2556,8 +2559,8 @@ void ymfm_opn2_device::sound_stream_update(sound_stream& stream, stream_sample_t
 
 void ymfm_opn2_device::write(offs_t offset, u8 data)
 {
-	m_queue_offset.push(offset);
-	m_queue_data.push(data);
+	m_queue_offset.push_back(offset);
+	m_queue_data.push_back(data);
 
 	switch (offset & 3)
 	{
@@ -2567,6 +2570,7 @@ void ymfm_opn2_device::write(offs_t offset, u8 data)
 
 		case 1: // data port
 			m_vgm_writer->vgm_write(0x00, m_address0, data);
+			m_stream->update();
 			break;
 
 		case 2: // upper address port
@@ -2575,6 +2579,7 @@ void ymfm_opn2_device::write(offs_t offset, u8 data)
 
 		case 3: // upper data port
 			m_vgm_writer->vgm_write(0x01, m_address1, data);
+			m_stream->update();
 			break;
 	}
 }
@@ -2589,4 +2594,24 @@ void ymfm_opn2_device::vgm_start(char* name)
 void ymfm_opn2_device::vgm_stop(void)
 {
 	m_vgm_writer->vgm_stop();
+}
+
+void ymfm_opn2_device::set_pcm_frequency(double frequency)
+{
+	m_timer->adjust(attotime::from_hz(frequency), 0, attotime::from_hz(frequency));
+}
+
+TIMER_CALLBACK_MEMBER(ymfm_opn2_device::timer_callback)
+{
+	if (m_enable == 0)
+		return;
+
+	if (m_callback != NULL)
+	{
+		uint8_t data = m_callback();
+		//m_queue_offset.push_front(0x2a);
+		//m_queue_data.push_front(data);
+		//m_opn2.m_dac_data = (m_opn2.m_dac_data & ~0x1fe) | ((data ^ 0x80) << 1);
+		//m_stream->update();
+	}
 }

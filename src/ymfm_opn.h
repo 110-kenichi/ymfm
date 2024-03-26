@@ -765,13 +765,14 @@ public:
 	// generate one sample of sound
 	void generate(output_data *output, uint32_t numsamples = 1);
 
+	uint16_t m_dac_data;             // 9-bit DAC data
+
 protected:
 	// simulate the DAC discontinuity
 	constexpr int32_t dac_discontinuity(int32_t value) const { return (value < 0) ? (value - 3) : (value + 4); }
 
 	// internal state
 	uint16_t m_address;              // address register
-	uint16_t m_dac_data;             // 9-bit DAC data
 	uint8_t m_dac_enable;            // DAC enabled?
 	fm_engine m_fm;                  // core FM engine
 };
@@ -804,6 +805,8 @@ public:
 
 #include <queue>
 
+typedef uint8_t(*OPN2_PCM_CALLBACK)();
+
 class ymfm_opn2_device : public device_t, public device_sound_interface, public ymfm::ymfm_interface
 {
 public:
@@ -813,6 +816,10 @@ public:
 
 	void vgm_start(char* name);
 	void vgm_stop(void);
+
+	void set_pcm_callback(OPN2_PCM_CALLBACK callback) { m_callback = callback; };
+
+	void set_pcm_frequency(double frequency);
 
 protected:
 	// device-level overrides
@@ -828,11 +835,16 @@ private:
 	sound_stream* m_stream;
 	ymfm::ym2612::output_data m_output;
 
-	std::queue<offs_t> m_queue_offset;
-	std::queue<u8> m_queue_data;
+	std::deque<offs_t> m_queue_offset;
+	std::deque<u8> m_queue_data;
 	vgm_writer* m_vgm_writer;
 	uint16_t m_address0;
 	uint16_t m_address1;
+
+	emu_timer* m_timer;
+	TIMER_CALLBACK_MEMBER(timer_callback);
+
+	OPN2_PCM_CALLBACK m_callback;
 };
 
 DECLARE_DEVICE_TYPE(YMFM_OPN2, ymfm_opn2_device)
