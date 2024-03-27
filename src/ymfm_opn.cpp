@@ -2510,7 +2510,7 @@ void ymfm_opn2_device::device_start()
 	m_vgm_writer = new vgm_writer(machine());
 
 	m_timer = machine().scheduler().timer_alloc(timer_expired_delegate(FUNC(ymfm_opn2_device::timer_callback), this));
-	m_timer->adjust(attotime::from_hz(14000.), 0, attotime::from_hz(14000.));
+	m_timer->adjust(attotime::from_hz(1), 0, attotime::from_hz(1));
 }
 
 //-------------------------------------------------
