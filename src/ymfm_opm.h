@@ -33,8 +33,12 @@
 
 #pragma once
 
+#include "emu.h"
+
 #include "ymfm.h"
 #include "ymfm_fm.h"
+
+#include "vgmwrite.h"
 
 namespace ymfm
 {
@@ -317,6 +321,41 @@ public:
 };
 
 }
+
+#include <queue>
+
+class ymfm_opm_device : public device_t, public device_sound_interface, public ymfm::ymfm_interface
+{
+public:
+	ymfm_opm_device(const machine_config& mconfig, const char* tag, device_t* owner, uint32_t clock);
+
+	void write(offs_t offset, u8 data);
+
+	void vgm_start(char* name);
+	void vgm_stop(void);
+
+protected:
+	// device-level overrides
+	virtual void device_start() override;
+	virtual void device_clock_changed() override;
+	virtual void device_reset() override;
+
+	// sound stream update overrides
+	virtual void sound_stream_update(sound_stream& stream, stream_sample_t** inputs, stream_sample_t** outputs, int samples) override;
+
+private:
+	ymfm::ym2151 m_opm;
+	sound_stream* m_stream;
+	ymfm::ym2151::output_data m_output;
+
+	std::deque<offs_t> m_queue_offset;
+	std::deque<u8> m_queue_data;
+	vgm_writer* m_vgm_writer;
+	uint16_t m_address0;
+	uint16_t m_address1;
+};
+
+DECLARE_DEVICE_TYPE(YMFM_OPM, ymfm_opm_device)
 
 
 #endif // YMFM_OPM_H

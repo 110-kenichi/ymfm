@@ -537,3 +537,100 @@ void ym2151::generate(output_data *output, uint32_t numsamples)
 }
 
 }
+
+
+// device type definition
+DEFINE_DEVICE_TYPE(YMFM_OPM, ymfm_opm_device, "ymfm_opm", "YMFM_OPM")
+
+
+ymfm_opm_device::ymfm_opm_device(const machine_config& mconfig, const char* tag, device_t* owner, uint32_t clock)
+	: device_t(mconfig, YMFM_OPM, tag, owner, clock)
+	, device_sound_interface(mconfig, *this)
+	, m_opm(*this)
+{
+}
+
+//-------------------------------------------------
+//  device_start - device-specific startup
+//-------------------------------------------------
+
+void ymfm_opm_device::device_start()
+{
+	m_stream = machine().sound().stream_alloc(*this, 0, 2, m_opm.sample_rate(clock()));
+
+	m_vgm_writer = new vgm_writer(machine());
+}
+
+//-------------------------------------------------
+//  device_clock_changed
+//-------------------------------------------------
+void ymfm_opm_device::device_clock_changed()
+{
+	m_stream->set_sample_rate(m_opm.sample_rate(clock()));
+}
+
+//-------------------------------------------------
+//  device_reset - device-specific reset
+//-------------------------------------------------
+
+void ymfm_opm_device::device_reset()
+{
+	m_opm.reset();
+
+	while (!m_queue_offset.empty())
+		m_queue_offset.pop_front();
+	while (!m_queue_data.empty())
+		m_queue_data.pop_front();
+}
+
+//-------------------------------------------------
+//  sound_stream_update - handle a stream update
+//-------------------------------------------------
+
+void ymfm_opm_device::sound_stream_update(sound_stream& stream, stream_sample_t** inputs, stream_sample_t** outputs, int samples)
+{
+
+	for (int i = 0; i < samples; i++)
+	{
+		if (!m_queue_offset.empty())
+		{
+			m_opm.write(m_queue_offset.front(), m_queue_data.front());
+			m_queue_offset.pop_front();
+			m_queue_data.pop_front();
+		}
+
+		m_opm.generate(&m_output);
+		outputs[0][i] = m_output.data[0];
+		outputs[1][i] = m_output.data[1];
+	}
+}
+
+void ymfm_opm_device::write(offs_t offset, u8 data)
+{
+	m_queue_offset.push_back(offset);
+	m_queue_data.push_back(data);
+
+	switch (offset & 3)
+	{
+	case 0: // address port
+		m_address0 = data;
+		break;
+
+	case 1: // data port
+		m_vgm_writer->vgm_write(0x00, m_address0, data);
+		m_stream->update();
+		break;
+	}
+}
+
+void ymfm_opm_device::vgm_start(char* name)
+{
+	m_vgm_writer->vgm_start(name);
+
+	m_vgm_writer->vgm_open(VGMC_YM2151, clock());
+}
+
+void ymfm_opm_device::vgm_stop(void)
+{
+	m_vgm_writer->vgm_stop();
+}
